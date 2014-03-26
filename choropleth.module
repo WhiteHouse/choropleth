@@ -80,6 +80,12 @@ function choropleth_default_formatter_output($variables) {
   if (isset($variables['item']['choropleth_data_column']) || isset($variables['item']['choropleth_breakpoints']) || isset($variables['item']['choropleth_color_scale'])) {
     ctools_include('choropleth', 'choropleth', '');
     $choropleth = $variables['item']['choropleth'] ? $variables['item']['choropleth'] : '';
+    // If this is a choropleth view, we need all the data from the resource
+    // so we can not use the paginated data if it is coming from the datastore.
+    // This sets the Drupal.settings to not use the datastore.
+    if ($choropleth) {
+      drupal_add_js('if (typeof Drupal.settings.recline.dkan != \'undefined\') { Drupal.settings.recline.dkan = false; }', array('type' => 'inline', 'scope' => 'footer'));
+    }
     $choropleth_colors = choropleth_color_scale_settings();
     $choropleth_colors_index = isset($variables['item']['choropleth_color_scale']) ? (int) $variables['item']['choropleth_color_scale'] : 0;
     $settings['choropleth'] = array(
