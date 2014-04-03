@@ -257,7 +257,7 @@ function choropleth_field_widget_recline_widget_form_alter(&$element, &$form_sta
   require_once 'choropleth.inc';
   drupal_add_js('misc/collapse.js');
   $collapsible_item = array('element' => array());
-  $collapsible_item['element']['#title'] = "Choropleth Map Help";
+  $collapsible_item['element']['#title'] = t("State by state (choropleth) map help");
   $collapsible_item['element']['#description'] = choropleth_help_text();
   $collapsible_item['element']['#attributes']['class'][] = 'collapsible';
   $collapsible_item['element']['#attributes']['class'][] = 'collapsed';
