@@ -166,11 +166,13 @@ function choropleth_help_text() {
     '1' => array(
       'data' => 'Special columns: If the following columns are present in your data then they will be used to build the choropleth map:',
       'children' => array(
-        '0' => array('data' => 'state OR states - ' . t('Will trigger a state-by-state choropleth map using the overlay regions for each state.')),
-        '1' => array('data' => 'popup text - ' . t('Will display this text in a pop up bubble when a region is clicked.')),
-        '2' => array('data' => 'popup link - ' . t('Will display a clickable link to the url provided. Example:') . ' <em>http://some-website.com</em>'),
-        '3' => array('data' => 'popup link text - ' . t('Will use this text as the visible portion of the link if provided.  Example:') . ' <em>' . t('Read More') . '</em>'),
-        '4' => array('data' => 'latitude (lat) AND longitude (lon)- ' . $geolocation_text . ' ' . t("Both lat and lon or latitude and longitude columns need to be present.")),
+        array('data' => 'state OR states - ' . t('Will trigger a state-by-state choropleth map using the overlay regions for each state.')),
+        array('data' => 'year - ' . t("Enable users to select from a dropdown list of available years' data to view on the map.")),
+        array('data' => 'categories - ' . t('Enable users to filter data for a particular category.')),
+        array('data' => 'popup text - ' . t('Will display this text in a pop up bubble when a region is clicked.')),
+        array('data' => 'popup link - ' . t('Will display a clickable link to the url provided. Example:') . ' <em>http://some-website.com</em>'),
+        array('data' => 'popup link text - ' . t('Will use this text as the visible portion of the link if provided.  Example:') . ' <em>' . t('Read More') . '</em>'),
+        array('data' => 'latitude (lat) AND longitude (lon)- ' . $geolocation_text . ' ' . t("Both lat and lon or latitude and longitude columns need to be present.")),
       ),
     ),
 
