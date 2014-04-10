@@ -77,6 +77,7 @@ function choropleth_recline_default_formatter($variables) {
  */
 function choropleth_default_formatter_output($variables) {
   $settings = array();
+  #var_dump($variables['item']);
   if (isset($variables['item']['choropleth_data_column']) || isset($variables['item']['choropleth_breakpoints']) || isset($variables['item']['choropleth_color_scale'])) {
     ctools_include('choropleth', 'choropleth', '');
     $choropleth = $variables['item']['choropleth'] ? $variables['item']['choropleth'] : '';
@@ -86,7 +87,7 @@ function choropleth_default_formatter_output($variables) {
     if ($choropleth) {
       drupal_add_js('if (typeof Drupal.settings.recline.dkan != \'undefined\') { Drupal.settings.recline.dkan = false; }', array('type' => 'inline', 'scope' => 'footer'));
     }
-    $choropleth_colors = choropleth_color_scale_settings();
+    $choropleth_colors = array_values(choropleth_color_scale_settings());
     $choropleth_colors_index = isset($variables['item']['choropleth_color_scale']) ? (int) $variables['item']['choropleth_color_scale'] : 0;
     $settings['choropleth'] = array(
       'choropleth' => $choropleth,
@@ -224,6 +225,7 @@ function choropleth_field_widget_form_alter(&$element, &$form_state, $context) {
           '#weight' => 0,
           '#type' => 'tableselect',
           '#header' => array(
+            'name' => t('Name'),
             'colors' => t('Colors'),
           ),
           '#options' => $choropleth_color_scale_options,
