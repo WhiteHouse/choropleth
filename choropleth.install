@@ -29,6 +29,14 @@ function choropleth_udpate_existing_fields() {
             // schema.
             db_add_field($table_name, $column_name, $schema['choropleth_data_column'] + array('fields' => array()));
           }
+
+          // Adding choropleth_unit_of_measure.
+          $column_name = _field_sql_storage_columnname($field_name, 'choropleth_unit_of_measure');
+          if (!(db_field_exists($table_name, $column_name))) {
+            // _drupal_schema_initialize() expects a fields array from the
+            // schema.
+            db_add_field($table_name, $column_name, $schema['choropleth_unit_of_measure'] + array('fields' => array()));
+          }
           // Adding choropleth_breakpoints.
           $column_name = _field_sql_storage_columnname($field_name, 'choropleth_breakpoints');
           if (!(db_field_exists($table_name, $column_name))) {
@@ -69,6 +77,15 @@ function choropleth_update_7001(&$sandbox) {
  * Add cholorpleth color scale column to existing recline field storage.
  */
 function choropleth_update_7002(&$sandbox) {
+  $ret = array();
+  choropleth_udpate_existing_fields();
+  return $ret;
+}
+
+/**
+ * Add choropleth units of measure to existing recline field storage.
+ */
+function choropleth_update_7003(&$sandbox) {
   $ret = array();
   choropleth_udpate_existing_fields();
   return $ret;

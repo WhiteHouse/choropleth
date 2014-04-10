@@ -29,6 +29,11 @@ function choropleth_custom_db_field_schema() {
       'length' => '255',
       'description' => 'Column to determine the choropleth map data.',
     ),
+    'choropleth_unit_of_measure' => array(
+      'type' => 'varchar',
+      'length' => '255',
+      'description' => 'Column to determine the choropleth map data.',
+    ),
     'choropleth_breakpoints' => array(
       'type' => 'varchar',
       'length' => '255',
@@ -92,6 +97,7 @@ function choropleth_default_formatter_output($variables) {
       'choropleth' => $choropleth,
       'choropleth_color_scale' => $choropleth_colors[$choropleth_colors_index],
       'choropleth_data_column' => $variables['item']['choropleth_data_column'],
+      'choropleth_unit_of_measure' => $variables['item']['choropleth_unit_of_measure'],
       'choropleth_breakpoints' => $variables['item']['choropleth_breakpoints'],
     );
     drupal_add_js($settings, 'setting');
@@ -150,6 +156,10 @@ function choropleth_resource_form_submit($form, $form_state) {
         if ($value['view']['choropleth'] && !(in_array('state', $headers[0]))) {
           form_set_error($field . "][und][0][view][choropleth", t("State by State Map view requires a State field."));
         }
+
+        if ($value['view']['choropleth'] && !($value['choropleth_unit_of_measure'])) {
+          form_set_error($field . "][und][0]['choropleth_unit_of_measure'][choropleth", t("State by State Map view requires a a units of measure"));
+        }
       }
     }
   }
@@ -191,6 +201,28 @@ function choropleth_field_widget_form_alter(&$element, &$form_state, $context) {
         '#weight' => 1,
         '#default_value' => $choropleth_data_column,
       );
+
+      $choropleth_unit_of_measure = isset($element[$delta]['#default_value']['choropleth_unit_of_measure']) ? $element[$delta]['#default_value']['choropleth_unit_of_measure'] : FALSE;
+      $element[$delta]['choropleth_unit_of_measure'] = array(
+        '#title' => 'Unit Of Measure',
+        '#description' => t('Specify the units for the data being displayed to the user.'),
+        '#type' => 'textfield',
+        '#weight' => 4,
+        '#default_value' => $choropleth_unit_of_measure,
+        '#states' => array(
+          'visible' => array(
+            ':input[name="field_upload[und][0][view][choropleth]"]' => array('checked' => TRUE),
+          ),
+          'required' => array(
+            ':input[name="field_upload[und][0][view][choropleth]"]' => array('checked' => TRUE),
+          ),
+        ),
+        '#weight' => 1,
+      );
+
+
+
+
       $choropleth_breakpoints = isset($element[$delta]['#default_value']['choropleth_breakpoints']) ? $element[$delta]['#default_value']['choropleth_breakpoints'] : FALSE;
       $element[$delta]['choropleth_breakpoints'] = array(
         '#title' => 'Color Breakpoints',
@@ -263,4 +295,60 @@ function choropleth_field_widget_recline_widget_form_alter(&$element, &$form_sta
   $collapsible_item['element']['#attributes']['class'][] = 'collapsed';
   $collapsible_item['element']['#children'] = '';
   $element[0]['#description'] .= theme('fieldset', $collapsible_item);
+}
+
+
+function hook_form_validate($form, &$form_state) {
+  // check for required field specified in the states array
+  foreach($form as $key => $field) {
+    if(is_array($field) && isset($field['#states']['required'])) {
+      $required = false;
+      $lang = $field['#language'];
+      foreach($field['#states']['required'] as $cond_field_sel => $cond_vals) {
+
+        // look for name= in the jquery selector - if that isn't there then give up (for now)
+        preg_match('/name="(.*)"/', $cond_field_sel, $matches);
+        if(isset(
+
+        $matches[1])) {
+
+          // remove language from field name
+          $cond_field_name = str_replace('[und]', '', $matches[1]);
+
+
+// get value identifier (e.g. value, tid, target_id)
+          $value_ident = key($cond_vals);
+
+
+// loop over the values of the conditional field
+          foreach($form_state['values'][$cond_field_name][$lang] as $cond_field_val) {
+
+
+// check for a match
+            if($cond_vals[$value_ident] == $cond_field_val[$value_ident]) {
+              // now we know this field is required
+              $required = true;
+              break 2;
+            }
+          }
+        }
+      }
+      if(
+
+      $required) {
+        $field_name = $field[$lang]['#field_name'];
+        $filled_in = false;
+        foreach($form_state['values'][$field_name][$lang] as $item) {
+          if(array_pop($item)) {
+            $filled_in = true;
+          }
+        }
+        if(!$filled_in) {
+          form_set_error($field_name, t(':field is a required field', array(':field' => $field[$lang]['#title'])));
+        }
+      }
+    }
+
+
+  }
 }

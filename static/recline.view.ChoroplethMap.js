@@ -38,6 +38,9 @@ this.recline.View = this.recline.View || {};
 
       // Breakpoints and color scale.
       this.breakpoints = options.breakpoints ? options.breakpoints : [];
+      this.unit_of_measure = options.unit_of_measure ? options.unit_of_measure : [];
+
+
       this.breakpoints = this.breakpoints.length > 0 ? this._validateBreakpoints(this.breakpoints) : [];
       this.dynamic_breakpoints = this.breakpoints.length > 0 ? false : true;
 
@@ -377,6 +380,8 @@ this.recline.View = this.recline.View || {};
         });
       }
 
+      this.menu.updateUnitOfMeasure(self.unit_of_measure);
+
       // Updating color references.
       this.menu.updateColorScale(self.breakpoints, self.base_color);
 
@@ -708,6 +713,7 @@ this.recline.View = this.recline.View || {};
                 </div> \
                 <input type="hidden" class="editor-id" value="chroropleth-map-1" /> \
             </form> \
+            <label id="unit-of-measure"></label> \
             <div id="color-scale" class="reference"></div> \
     ',
     // Radio input template for active column.
@@ -777,6 +783,7 @@ this.recline.View = this.recline.View || {};
           filter_by_year: this._renderSelect('year', 'Years'),
           // Render the category select input.
           filter_by_category: this._renderSelect('category', 'Categories'),
+          unit_of_measure: this.state.get('unitOfMeasure'),
         }
       );
       // Attach html.
@@ -927,6 +934,15 @@ this.recline.View = this.recline.View || {};
         });
       }
     },
+
+    /**
+     * Updates the units of measure label on the menu
+     * @param unitOfMeasure
+     */
+    updateUnitOfMeasure: function(unitOfMeasure){
+      this.$el.find('#unit-of-measure').html(unitOfMeasure);
+    },
+
     /**
      * Updates color scale legend on menu
      * @param  {array} breakpoints
@@ -945,6 +961,7 @@ this.recline.View = this.recline.View || {};
         temp += (i === 0 ? '0' : breakpoints[i - 1]) + '&ndash;' + breakpoints[i] + '<br />';
         html = temp + html;
       });
+
       temp = '<i style="background:' + color_scale(1).hex() + '"></i>';
       temp += breakpoints[breakpoints.length - 1] + '+<br />';
       this.$el.find('#color-scale').html(temp + html);
