@@ -2,6 +2,7 @@
   Drupal.behaviors.choropleth = {
     attach: function(context) {
       var choroDataColumn = [Drupal.settings.choropleth.choropleth_data_column] || [];
+      var choroUnitsOfMeasureColumn = [Drupal.settings.choropleth.choropleth_unit_of_measure][0] || [];
       var choropleth = Drupal.settings.choropleth.choropleth || '';
       var colorScale = Drupal.settings.choropleth.choropleth_color_scale || ['#FFEDA0', '#FEB24C', '#E31A1C', '#800026'];
       var breakpoints = Drupal.settings.choropleth.choropleth_breakpoints || [];
@@ -131,6 +132,7 @@
               label_to_map: map_label,
               location_default: location_default,
               selectable_fields: choroDataColumn,
+              unit_of_measure: choroUnitsOfMeasureColumn,
               breakpoints: breakpoints,
               base_color: colorScale,
             });
