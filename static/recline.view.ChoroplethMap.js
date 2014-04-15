@@ -555,7 +555,7 @@ this.recline.View = this.recline.View || {};
       //
       var template = ' \
                   <div class="popup_text"> \
-                    {{popup_text}} \
+                    {{{popup_text}}} \
                   </div> \
                   <div> \
                     <a href="{{popup_url}}" target="_blank" title="Link to additional information opens in a new window."> \
