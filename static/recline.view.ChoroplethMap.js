@@ -605,9 +605,7 @@ this.recline.View = this.recline.View || {};
         v += self._stripSpecialUnitsFromNumber(value[field_index]);
       });
 
-      if (n > 0) {
-        v = parseInt(v / n, 10);
-      }
+
 
       return Mustache.render(
         template,
