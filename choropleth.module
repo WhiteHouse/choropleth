@@ -227,7 +227,7 @@ function choropleth_field_widget_form_alter(&$element, &$form_state, $context) {
       $choropleth_breakpoints = isset($element[$delta]['#default_value']['choropleth_breakpoints']) ? $element[$delta]['#default_value']['choropleth_breakpoints'] : FALSE;
       $element[$delta]['choropleth_breakpoints'] = array(
         '#title' => 'Color Breakpoints',
-        '#description' => t('For the state-by-state map (if applicable) determine what values will be used as "breakpoints" for color shading. Enter breakpoints as a comma separated list. For example, if you want your map to include 4 colors where 0-24 is visualized as the lightest color, 25-49 medium light, 50-74 dark, 75-100 darkest, you would enter this: 25, 50, 75..'),
+        '#description' => t('For the state-by-state map (if applicable) determine what values will be used as "breakpoints" for color shading. Enter breakpoints as a comma separated list. Please note you a space is required after each comma. For example, if you want your map to include 4 colors where 0-24 is visualized as the lightest color, 25-49 medium light, 50-74 dark, 75-100 darkest, you would enter this: 25, 50, 75..'),
         '#type' => 'textfield',
         '#weight' => 4,
         '#default_value' => $choropleth_breakpoints,

@@ -181,7 +181,16 @@ this.recline.View = this.recline.View || {};
       return breakpoints;
     },
 
+      // When we add formatting framework to choropleth we should revisit these
+      // special Units functions and replace.
 
+
+      /**
+       * Returns the special chars that we might want to strip from the prefix
+       * or suffix of a number
+       * @return {string[]}
+       * Array containing the special units chars
+       */
 
       _getSpecialUnits:function(){
         var specialUnits = ["$", "%"];
@@ -256,13 +265,67 @@ this.recline.View = this.recline.View || {};
      *   
      * @return {[type]}   [description]
      */
-    _stripSpecialUnitsFromNumber: function(n) {
+    _formatSpecialUnitsNumber: function(n) {
       // This is a good place to add new units.
       var specialUnits = this._getSpecialUnits();
-
+      var suffix="";
+      var prefix="";
 
       if (n) {
         n = n.toString().trim();
+
+        if (this._isSpecialUnitSuffux(n, specialUnits)) {
+          suffix =  n.substr(n.length - 1,1);
+          n = n.substr(0, n.length - 1);
+        }
+
+        if (this._isSpecialUnitPrefix(n, specialUnits)) {
+          prefix =  n.substr(0,1);
+          n = n.substr(1, n.length - 1);
+        }
+        //When we add formatting framework to choropleth we should revisit this line
+        return numeral().unformat(n, specialUnits);
+      }
+
+      if (this._isSpecialUnitSuffux(n, specialUnits)) {
+        suffix =  n.substr(n.length - 1,1);
+        n = n.substr(0, n.length - 1);
+      }
+
+      if (this._isSpecialUnitPrefix(n, specialUnits)) {
+        prefix =  n.substr(0,1);
+        n = n.substr(1, n.length - 1);
+      }
+      //When we add formatting framework to choropleth we should revisit this line
+      return prefix +  (numeral().unformat(n)).toLocaleString() + suffix;
+    },
+
+
+
+      /**
+       * Remove the special units from a number
+       * @param  {string|int} n
+       *
+       * @return {[type]}   [description]
+       */
+      _stripSpecialUnitsFromNumber: function(n) {
+        // This is a good place to add new units.
+        var specialUnits = this._getSpecialUnits();
+
+
+        if (n) {
+          n = n.toString().trim();
+
+          if (this._isSpecialUnitSuffux(n, specialUnits)) {
+            n = n.substr(0, n.length - 1);
+          }
+
+          if (this._isSpecialUnitPrefix(n, specialUnits)) {
+            n = n.substr(1, n.length - 1);
+          }
+          return n;
+          //return numeral().unformat(n, specialUnits);
+        }
 
         if (this._isSpecialUnitSuffux(n, specialUnits)) {
           n = n.substr(0, n.length - 1);
@@ -271,20 +334,10 @@ this.recline.View = this.recline.View || {};
         if (this._isSpecialUnitPrefix(n, specialUnits)) {
           n = n.substr(1, n.length - 1);
         }
-        return numeral().unformat(n, specialUnits);
-      }
 
-      if (this._isSpecialUnitSuffux(n, specialUnits)) {
-        n = n.substr(0, n.length - 1);
-      }
-
-      if (this._isSpecialUnitPrefix(n, specialUnits)) {
-        n = n.substr(1, n.length - 1);
-      }
-
-      return numeral().unformat(n);
-    },
-
+        //return numeral().unformat(n);
+        return n;
+      },
 
 
 
@@ -579,6 +632,22 @@ this.recline.View = this.recline.View || {};
       // Set flag.
       this.mapReady = true;
     },
+
+    /**
+     * Counts the number of decimal places
+     * @params {string} value
+     *   A string to be parsed
+     * @return {int}
+     * number of decimal places in the string
+     */
+    _countDecimals: function (value) {
+        if(Math.floor(value) == value)
+          return 0;
+
+        return value.toString().split(".")[1].length || 0;
+    },
+
+
     /**
      * Provides the content for the top-right control.
      * @params {object} feature
@@ -591,6 +660,7 @@ this.recline.View = this.recline.View || {};
       var filtered_records = self._filteredRecordsForPoly(feature.properties.name);
       var units = state['columnToDisplay'];
       var v = 0;
+      var desired_num_decimal_places = 0;
       var n = filtered_records.length;
       var template = ' \
                     <b>{{name}}</b> \
@@ -602,10 +672,22 @@ this.recline.View = this.recline.View || {};
         if (!units && units_index > -1) {
           units = value[units_index];
         }
-        v += self._stripSpecialUnitsFromNumber(value[field_index]);
+        var v_temp = self._stripSpecialUnitsFromNumber(value[field_index]);
+        desired_num_decimal_places = Math.max(desired_num_decimal_places, self._countDecimals(v_temp));
+        v +=  numeral().unformat(v_temp);
       });
 
+      //When we add formatting framework to choropleth we should revisit this line
+      v = numeral().unformat(v).toLocaleString();
 
+      var current_num_decimal_places  = self._countDecimals(v);
+      // Dropped off a trailing zero.
+      if(desired_num_decimal_places > current_num_decimal_places)
+      {
+        var num_dropped_trailing_zeros =  desired_num_decimal_places-current_num_decimal_places;
+        var dropped_trailing_zeros = Array(num_dropped_trailing_zeros + 1).join("0");
+        v = v+""+dropped_trailing_zeros;
+      }
 
       return Mustache.render(
         template,
