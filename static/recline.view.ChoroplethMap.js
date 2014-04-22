@@ -168,9 +168,8 @@ this.recline.View = this.recline.View || {};
       var self = this;
       $.each(breakpoints, function(i, v){
         var n = v;
-        if (self._isPercentage(n)) {
-          n = self._preparePercentage(n);
-        }
+        n = self._stripSpecialUnitsFromNumber(n);
+
         if (!isNaN(parseFloat(n)) && isFinite(n)) {
           breakpoints[i] = n;
         }
@@ -181,41 +180,115 @@ this.recline.View = this.recline.View || {};
       });
       return breakpoints;
     },
-    /**
-     * Check if a given string is a percentage
-     * @param  {int|string}  n
-     *   The string|int to check
-     * @return {boolean}
-     *   Boolean representing if the string is a percentage
-     */
-    _isPercentage: function(n) {
-      if (n) {
-        n = n.toString().trim();
-        if (n.substr(n.length - 1) === '%') {
-          return true;
+
+
+
+      _getSpecialUnits:function(){
+        var specialUnits = ["$", "%"];
+        return specialUnits;
+      },
+      /**
+       * Check if a given string contains a special char
+       * @param  {int|string}  n
+       *   The string|int to check
+       * @param  {array[string]}  specialUnits
+       *   The units to check n for
+       * @return {boolean}
+       *   Boolean representing if the string contains with a special char
+       */
+      _isSpecialUnit: function(n) {
+        var specialUnits = this._getSpecialUnits();
+        return (this._isSpecialUnitPrefix(n, specialUnits) || this._isSpecialUnitSuffux(n, specialUnits));
+      },
+
+      /**
+       * Check if a given string starts with a special char
+       * @param  {int|string}  n
+       *   The string|int to check
+       * @param  {array[string]}  specialUnits
+       *   The units to check n for
+       * @return {boolean}
+       *   Boolean representing if the string starts with a special char
+       */
+
+      _isSpecialUnitPrefix: function(n, specialUnits) {
+        for (var i=0;i<specialUnits.length;i++)
+        {
+          var currentUnit = specialUnits[i];
+          if (n) {
+            n = n.toString().trim();
+            // Does it start with the current unit.
+            if (n.substr(0,1) === currentUnit)
+              return true;
+          }
         }
-      }
-      return false;
-    },
+        return false;
+      },
+
+      /**
+       * Check if a given string ends with a special char
+       * @param  {int|string}  n
+       *   The string|int to check
+       * @param  {array[string]}  specialUnits
+       *   The units to check n for
+       * @return {boolean}
+       *   Boolean representing if the string ends with a special char
+       */
+      _isSpecialUnitSuffux: function(n, specialUnits) {
+        for (var i=0;i<specialUnits.length;i++)
+        {
+          var currentUnit = specialUnits[i];
+          if (n) {
+            n = n.toString().trim();
+
+            // Does it end with the current unit.
+            if (n.substr(n.length - 1,1) === currentUnit) {
+              return true;
+            }
+          }
+        }
+        return false;
+      },
+
     /**
-     * Remove the % from a percentage number
+     * Remove the special units from a number
      * @param  {string|int} n
      *   
      * @return {[type]}   [description]
      */
-    _preparePercentage: function(n) {
+    _stripSpecialUnitsFromNumber: function(n) {
+      // This is a good place to add new units.
+      var specialUnits = this._getSpecialUnits();
+
+
       if (n) {
         n = n.toString().trim();
-        if (this._isPercentage(n)) {
+
+        if (this._isSpecialUnitSuffux(n, specialUnits)) {
           n = n.substr(0, n.length - 1);
         }
-        return numeral().unformat(n);
+
+        if (this._isSpecialUnitPrefix(n, specialUnits)) {
+          n = n.substr(1, n.length - 1);
+        }
+        return numeral().unformat(n, specialUnits);
       }
-      if (this._isPercentage(n)) {
+
+      if (this._isSpecialUnitSuffux(n, specialUnits)) {
         n = n.substr(0, n.length - 1);
       }
+
+      if (this._isSpecialUnitPrefix(n, specialUnits)) {
+        n = n.substr(1, n.length - 1);
+      }
+
       return numeral().unformat(n);
     },
+
+
+
+
+
     /**
      * Inspect the model and return an array of selectable columns.
      * @return {array}
@@ -230,9 +303,11 @@ this.recline.View = this.recline.View || {};
         value = value.toString().toLowerCase();
         if($.inArray(value, non_selectables) < 0) {
           var n = records[1][index];
-          if (self._isPercentage(n)) {
-            n = self._preparePercentage(n);
+
+          if(self._isSpecialUnit(n)){
+            n = self._stripSpecialUnitsFromNumber(n);
           }
+
           if (!isNaN(parseFloat(n)) && isFinite(n)) {
             selectable_fields.push(value);
           }
@@ -359,7 +434,8 @@ this.recline.View = this.recline.View || {};
         for (i = 1; i < records.length; i++) {
           var value = records[i];
           // convert number to make sure string with comas don't break functionality.
-          var value_at_index = self._preparePercentage(value[field_index]);
+          var value_at_index = self._stripSpecialUnitsFromNumber(value[field_index]);
+
 
           if (value_at_index !== null) {
             if (value_at_index > max || max === 0) {
@@ -398,7 +474,7 @@ this.recline.View = this.recline.View || {};
             $.each(filtered_records, function(key, value) {
               // make sure string with comas don't break functionality.
               if (value[field_index] !== null) {
-                sum += self._preparePercentage(value[field_index]);
+                sum += self._stripSpecialUnitsFromNumber(value[field_index]);
                 n++;
               }
             });
@@ -526,8 +602,9 @@ this.recline.View = this.recline.View || {};
         if (!units && units_index > -1) {
           units = value[units_index];
         }
-        v += self._preparePercentage(value[field_index]);
+        v += self._stripSpecialUnitsFromNumber(value[field_index]);
       });
+
       if (n > 0) {
         v = parseInt(v / n, 10);
       }
