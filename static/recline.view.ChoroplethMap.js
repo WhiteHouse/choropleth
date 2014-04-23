@@ -63,7 +63,6 @@ this.recline.View = this.recline.View || {};
       var selectable_fields = options.selectable_fields ? options.selectable_fields : [];
       selectable_fields = this._validateSelectableColumns(selectable_fields);
 
-
       // If no ocurrances for selectable fields exists
       // build an array from fields that hold numerical data.
       if (!selectable_fields.length) {
@@ -81,7 +80,7 @@ this.recline.View = this.recline.View || {};
       var year = options.year ? numeral().unformat(options.year) : '';
 
       var years = my.ChoroplethMap._grabOptionsForColumn(this.model.toTemplateJSON(), 'year', 'years');
-      
+
       if (years.length > 0) {
         year = (year !== '') && ($.inArray(year, years) > -1) ? year : years[0];
       }
@@ -184,7 +183,6 @@ this.recline.View = this.recline.View || {};
       // When we add formatting framework to choropleth we should revisit these
       // special Units functions and replace.
 
-
       /**
        * Returns the special chars that we might want to strip from the prefix
        * or suffix of a number
@@ -262,7 +260,7 @@ this.recline.View = this.recline.View || {};
     /**
      * Remove the special units from a number
      * @param  {string|int} n
-     *   
+     *
      * @return {[type]}   [description]
      */
     _formatSpecialUnitsNumber: function(n) {
@@ -300,8 +298,6 @@ this.recline.View = this.recline.View || {};
       return prefix +  (numeral().unformat(n)).toLocaleString() + suffix;
     },
 
-
-
       /**
        * Remove the special units from a number
        * @param  {string|int} n
@@ -311,7 +307,6 @@ this.recline.View = this.recline.View || {};
       _stripSpecialUnitsFromNumber: function(n) {
         // This is a good place to add new units.
         var specialUnits = this._getSpecialUnits();
-
 
         if (n) {
           n = n.toString().trim();
@@ -338,9 +333,6 @@ this.recline.View = this.recline.View || {};
         //return numeral().unformat(n);
         return n;
       },
-
-
-
 
     /**
      * Inspect the model and return an array of selectable columns.
@@ -488,7 +480,6 @@ this.recline.View = this.recline.View || {};
           var value = records[i];
           // convert number to make sure string with comas don't break functionality.
           var value_at_index = self._stripSpecialUnitsFromNumber(value[field_index]);
-
 
           if (value_at_index !== null) {
             if (value_at_index > max || max === 0) {
@@ -647,7 +638,6 @@ this.recline.View = this.recline.View || {};
         return value.toString().split(".")[1].length || 0;
     },
 
-
     /**
      * Provides the content for the top-right control.
      * @params {object} feature
@@ -728,7 +718,7 @@ this.recline.View = this.recline.View || {};
           if (!!popup_text) {
             popup_text = popup_text.replace(/(\r\n|\n|\r)/g,"<br />");
           }
-          
+
           // Check for field popup_link.
           popup_url = value[self._indexForColumn('popup link')];
           if (popup_url) {
@@ -959,7 +949,7 @@ this.recline.View = this.recline.View || {};
           });
         }
       }
-      
+
       return this;
     },
     /**

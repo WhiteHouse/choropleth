@@ -82,7 +82,7 @@ function choropleth_recline_default_formatter($variables) {
  */
 function choropleth_default_formatter_output($variables) {
   $settings = array();
-  #var_dump($variables['item']);
+  // var_dump($variables['item']);
   if (isset($variables['item']['choropleth_data_column']) || isset($variables['item']['choropleth_breakpoints']) || isset($variables['item']['choropleth_color_scale'])) {
     ctools_include('choropleth', 'choropleth', '');
     $choropleth = $variables['item']['choropleth'] ? $variables['item']['choropleth'] : '';
@@ -221,13 +221,10 @@ function choropleth_field_widget_form_alter(&$element, &$form_state, $context) {
         '#weight' => 1,
       );
 
-
-
-
       $choropleth_breakpoints = isset($element[$delta]['#default_value']['choropleth_breakpoints']) ? $element[$delta]['#default_value']['choropleth_breakpoints'] : FALSE;
       $element[$delta]['choropleth_breakpoints'] = array(
         '#title' => 'Color Breakpoints',
-        '#description' => t('For the state-by-state map (if applicable) determine what values will be used as "breakpoints" for color shading. Enter breakpoints as a comma separated list. Please note you a space is required after each comma. For example, if you want your map to include 4 colors where 0-24 is visualized as the lightest color, 25-49 medium light, 50-74 dark, 75-100 darkest, you would enter this: 25, 50, 75..'),
+        '#description' => t('For the state-by-state map (if applicable) determine what values will be used as "breakpoints" for color shading. Enter breakpoints as a comma separated list. Please note that a space is required after each comma. For example, if you want your map to include 4 colors where 0-24 is visualized as the lightest color, 25-49 medium light, 50-74 dark, 75-100 darkest, you would enter this: 25, 50, 75..'),
         '#type' => 'textfield',
         '#weight' => 4,
         '#default_value' => $choropleth_breakpoints,
@@ -299,58 +296,49 @@ function choropleth_field_widget_recline_widget_form_alter(&$element, &$form_sta
   $element[0]['#description'] .= theme('fieldset', $collapsible_item);
 }
 
-
+/**
+ * Implements hook_form_validate().
+ */
 function hook_form_validate($form, &$form_state) {
-  // check for required field specified in the states array
-  foreach($form as $key => $field) {
-    if(is_array($field) && isset($field['#states']['required'])) {
-      $required = false;
+  // Check for required field specified in the states array.
+  foreach ($form as $key => $field) {
+    if (is_array($field) && isset($field['#states']['required'])) {
+      $required = FALSE;
       $lang = $field['#language'];
-      foreach($field['#states']['required'] as $cond_field_sel => $cond_vals) {
-
-        // look for name= in the jquery selector - if that isn't there then give up (for now)
+      foreach ($field['#states']['required'] as $cond_field_sel => $cond_vals) {
+        // Look for name= in the jquery selector - if that isn't there then give
+        // up (for now).
         preg_match('/name="(.*)"/', $cond_field_sel, $matches);
-        if(isset(
-
-        $matches[1])) {
-
-          // remove language from field name
+        if (isset($matches[1])) {
+          // Remove language from field name.
           $cond_field_name = str_replace('[und]', '', $matches[1]);
 
-
-// get value identifier (e.g. value, tid, target_id)
+          // Get value identifier (e.g. value, tid, target_id).
           $value_ident = key($cond_vals);
 
-
-// loop over the values of the conditional field
-          foreach($form_state['values'][$cond_field_name][$lang] as $cond_field_val) {
-
-
-// check for a match
-            if($cond_vals[$value_ident] == $cond_field_val[$value_ident]) {
-              // now we know this field is required
-              $required = true;
+          // Loop over the values of the conditional field.
+          foreach ($form_state['values'][$cond_field_name][$lang] as $cond_field_val) {
+            // Check for a match.
+            if ($cond_vals[$value_ident] == $cond_field_val[$value_ident]) {
+              // Now we know this field is required.
+              $required = TRUE;
               break 2;
             }
           }
         }
       }
-      if(
-
-      $required) {
+      if ($required) {
         $field_name = $field[$lang]['#field_name'];
-        $filled_in = false;
-        foreach($form_state['values'][$field_name][$lang] as $item) {
-          if(array_pop($item)) {
-            $filled_in = true;
+        $filled_in = FALSE;
+        foreach ($form_state['values'][$field_name][$lang] as $item) {
+          if (array_pop($item)) {
+            $filled_in = TRUE;
           }
         }
-        if(!$filled_in) {
+        if (!$filled_in) {
           form_set_error($field_name, t(':field is a required field', array(':field' => $field[$lang]['#title'])));
         }
       }
     }
-
-
   }
 }
