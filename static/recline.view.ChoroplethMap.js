@@ -295,7 +295,7 @@ this.recline.View = this.recline.View || {};
         n = n.substr(1, n.length - 1);
       }
       //When we add formatting framework to choropleth we should revisit this line
-      return prefix +  (numeral().unformat(n)).toLocaleString() + suffix;
+      return prefix +  this._numberWithCommas(numeral().unformat(n)) + suffix;
     },
 
       /**
@@ -466,7 +466,7 @@ this.recline.View = this.recline.View || {};
       if (!this.breakpoints.length) {
         // Building default breakpoints distribution.
         var default_bps = [];
-        for (var i = 0; i < 8; i++) {
+        for (var i = 0; i < 16; i++) {
           default_bps.push(1 * Math.pow(10, i));
           default_bps.push(2 * Math.pow(10, i));
           default_bps.push(5 * Math.pow(10, i));
@@ -632,10 +632,15 @@ this.recline.View = this.recline.View || {};
      * number of decimal places in the string
      */
     _countDecimals: function (value) {
-        if(Math.floor(value) == value)
-          return 0;
+      var arrSplitNum = value.toString().split(".");
+      if(arrSplitNum.length < 2)
+        return 0;
 
-        return value.toString().split(".")[1].length || 0;
+      return arrSplitNum[1].length || 0;
+    },
+
+    _numberWithCommas:function(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     },
 
     /**
@@ -668,7 +673,7 @@ this.recline.View = this.recline.View || {};
       });
 
       //When we add formatting framework to choropleth we should revisit this line
-      v = numeral().unformat(v).toLocaleString();
+      v = this._numberWithCommas(numeral().unformat(v));
 
       var current_num_decimal_places  = self._countDecimals(v);
       // Dropped off a trailing zero.
@@ -676,8 +681,19 @@ this.recline.View = this.recline.View || {};
       {
         var num_dropped_trailing_zeros =  desired_num_decimal_places-current_num_decimal_places;
         var dropped_trailing_zeros = Array(num_dropped_trailing_zeros + 1).join("0");
-        v = v+""+dropped_trailing_zeros;
+
+        if(current_num_decimal_places>0)
+        {
+          v = v + "" + dropped_trailing_zeros;
+        }
+        else
+        {
+          v = v + "." + dropped_trailing_zeros;
+        }
+
       }
+
+
 
       return Mustache.render(
         template,
@@ -1091,6 +1107,50 @@ this.recline.View = this.recline.View || {};
     },
 
     /**
+     * Counts the number of decimal places
+     * @params {string} value
+     *   A string to be parsed
+     * @return {int}
+     * number of decimal places in the string
+     */
+    _countDecimals: function (value) {
+      var arrSplitNum = value.toString().split(".");
+      if(arrSplitNum.length < 2)
+        return 0;
+
+      return arrSplitNum[1].length || 0;
+    },
+
+    _numberWithCommas:function(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+
+    _formatNumberWithTrailingZerosPreserved:function(num){
+      var formattedNum = this._numberWithCommas(numeral().unformat(num));
+      var desired_num_decimal_places  = this._countDecimals(num);
+      var current_num_decimal_places  = this._countDecimals(formattedNum);
+
+      // Dropped off a trailing zero.
+      if(desired_num_decimal_places > current_num_decimal_places)
+      {
+        var num_dropped_trailing_zeros =  desired_num_decimal_places-current_num_decimal_places;
+        var dropped_trailing_zeros = Array(num_dropped_trailing_zeros + 1).join("0");
+
+        if(current_num_decimal_places>0)
+        {
+          formattedNum= formattedNum+""+dropped_trailing_zeros;
+        }
+        else
+        {
+          formattedNum= formattedNum+"."+dropped_trailing_zeros;
+        }
+      }
+
+      return formattedNum;
+    },
+
+
+    /**
      * Updates color scale legend on menu
      * @param  {array} breakpoints
      *   an array of breakpoints for the color scale
@@ -1101,16 +1161,21 @@ this.recline.View = this.recline.View || {};
       var color_scale = chroma.scale(colors);
       var html = '';
       var temp = '';
+      var self = this;
 
       $.each(breakpoints, function(i, v) {
         var scale = (i).toFixed(2) / (breakpoints.length).toFixed(2);
         temp = '<i style="background:' + color_scale(scale).hex() + '"></i>';
-        temp += (i === 0 ? '0' : breakpoints[i - 1]) + '&ndash;' + breakpoints[i] + '<br />';
+        temp += (i === 0 ? '0' : self._formatNumberWithTrailingZerosPreserved(breakpoints[i - 1])) + '&ndash;' + self._formatNumberWithTrailingZerosPreserved(breakpoints[i]) + '<br />';
         html = temp + html;
       });
 
+
+
+
+
       temp = '<i style="background:' + color_scale(1).hex() + '"></i>';
-      temp += breakpoints[breakpoints.length - 1] + '+<br />';
+      temp += self._formatNumberWithTrailingZerosPreserved(breakpoints[breakpoints.length - 1]) + '+<br />';
       this.$el.find('#color-scale').html(temp + html);
     }
   });
