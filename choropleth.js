@@ -86,9 +86,9 @@
                 set_map_label('State');
                 polygons = Drupal.settings.choropleth.statesData;
                 // Set to contigous USA.
-                location_default.lat = 37.8;
-                location_default.lon = -96;
-                location_default.zoom = 4;
+                location_default.lat = 51.25;
+                location_default.lon = -110;
+                location_default.zoom = 3;
                 break;
               case 'country':
                 // Process map as World.
