@@ -12,8 +12,8 @@ CONTENTS OF THIS FILE
 Introduction
 ------------
 
-This module provides a choropleth map (http://en.wikipedia.org/wiki/Choropleth_map)
-view for the the recline field provided by recline module (http://drupal.org/project/recline).
+This module provides a [choropleth map](http://en.wikipedia.org/wiki/Choropleth_map)
+view for the the recline field provided by [recline module](http://drupal.org/project/recline).
 
 It ties a field in the uploaded file (i.e. state) to shapes provided by a
 GeoJSON file (http://en.wikipedia.org/wiki/GeoJSON#Example). Then it colors
