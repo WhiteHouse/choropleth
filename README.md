@@ -16,7 +16,7 @@ This module provides a [choropleth map](http://en.wikipedia.org/wiki/Choropleth_
 view for the the recline field provided by [recline module](http://drupal.org/project/recline).
 
 It ties a field in the uploaded file (i.e. state) to shapes provided by a
-GeoJSON file (http://en.wikipedia.org/wiki/GeoJSON#Example). Then it colors
+[GeoJSON file](http://en.wikipedia.org/wiki/GeoJSON#Example). Then it colors
 those shapes by comparing values in a second field (e.g. number of drug related
 deaths). It also provides UI to interactively filter the data through Year and
 Category columns (if present in the data).
